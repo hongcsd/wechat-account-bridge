@@ -1,0 +1,510 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>{{ page_title }} · 公众号 Bridge</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #142b25;
+      --muted: #60776f;
+      --subtle: #82958e;
+      --line: #dce8e3;
+      --line-soft: #eaf0ed;
+      --brand: #087f5b;
+      --brand-dark: #086044;
+      --brand-soft: #e8f7f1;
+      --sidebar: #0a3027;
+      --bg: #f4f7f5;
+      --paper: #fff;
+      --danger: #a92b22;
+      --danger-bg: #fff1f0;
+      --warn: #8a5207;
+      --warn-bg: #fff8e8;
+    }
+    * { box-sizing: border-box; }
+    html { background: var(--bg); }
+    body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.55 Inter, "PingFang SC", "Microsoft YaHei", system-ui, sans-serif; }
+    ::selection { background: #b9edd9; color: #063e30; }
+    :focus-visible { outline: 3px solid rgba(24, 167, 116, .3); outline-offset: 2px; }
+    * { scrollbar-color: #a9beb6 transparent; scrollbar-width: thin; }
+    *::-webkit-scrollbar { width: 9px; height: 9px; }
+    *::-webkit-scrollbar-thumb { border: 2px solid transparent; border-radius: 999px; background: #a9beb6; background-clip: padding-box; }
+
+    .layout { display: grid; grid-template-columns: 248px minmax(0, 1fr); min-height: 100vh; }
+    .sidebar { position: sticky; top: 0; display: flex; flex-direction: column; height: 100vh; overflow-y: auto; padding: 28px 20px 22px; background: var(--sidebar); color: #dcece7; }
+    .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 36px; color: #fff; font-weight: 800; letter-spacing: .01em; }
+    .brand-icon { display: grid; width: 38px; height: 38px; flex: 0 0 auto; place-items: center; border-radius: 12px; background: #c9f8e5; color: #075d46; }
+    .brand-icon svg { width: 21px; height: 21px; }
+    .brand small { display: block; margin-top: 2px; color: #91b5aa; font-size: 10px; letter-spacing: .12em; }
+    .nav { display: grid; gap: 6px; }
+    .nav a { display: flex; min-height: 44px; align-items: center; gap: 11px; padding: 10px 12px; border-radius: 10px; color: #aecac1; text-decoration: none; transition: background-color .16s ease, color .16s ease; }
+    .nav a:hover { background: rgba(255, 255, 255, .055); color: #fff; }
+    .nav a[aria-current="page"] { background: rgba(255, 255, 255, .1); color: #fff; font-weight: 700; }
+    .nav svg { width: 18px; height: 18px; flex: 0 0 auto; stroke-width: 1.8; }
+    .side-foot { margin-top: auto; padding-top: 18px; border-top: 1px solid rgba(255, 255, 255, .1); color: #91b5aa; font-size: 12px; }
+    .side-foot strong { display: block; margin-bottom: 2px; color: #e0f0eb; }
+    .logout { min-height: 38px; margin-top: 7px; padding: 6px 0; border: 0; background: transparent; color: #a7c7bd; cursor: pointer; font: inherit; }
+    .logout:hover { color: #fff; }
+
+    .main { min-width: 0; padding: 36px clamp(28px, 4vw, 62px) 72px; }
+    .top { display: flex; justify-content: flex-end; margin-bottom: 16px; }
+    .service-status { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 11px; white-space: nowrap; }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #20a968; }
+    .flash { margin-bottom: 18px; padding: 12px 15px; border: 1px solid; border-radius: 12px; }
+    .flash.notice { border-color: #bee9d7; background: #eaf8f2; color: #075f44; }
+    .flash.error { border-color: #ffd1cd; background: var(--danger-bg); color: var(--danger); }
+
+    .metric-strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-bottom: 26px; border: 1px solid var(--line); border-radius: 16px; background: var(--paper); overflow: hidden; }
+    .metric { padding: 19px 20px; }
+    .metric + .metric { border-left: 1px solid var(--line-soft); }
+    .metric span { display: block; color: var(--muted); font-size: 12px; }
+    .metric strong { display: block; margin: 4px 0 1px; font-size: 27px; line-height: 1.25; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+    .metric small { color: var(--subtle); }
+    .surface { border: 1px solid var(--line); border-radius: 16px; background: var(--paper); overflow: hidden; }
+    .empty { padding: 34px 20px; color: var(--muted); text-align: center; }
+
+    .section-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 15px; }
+    .section-head h2 { margin: 0; font-size: 20px; letter-spacing: -.015em; }
+    .section-desc { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+    .accounts { display: grid; gap: 16px; }
+    .account { border: 1px solid var(--line); border-radius: 16px; background: var(--paper); overflow: hidden; }
+    .account-top { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 18px 20px; border-bottom: 1px solid var(--line-soft); }
+    .account-title { display: flex; min-width: 0; align-items: center; gap: 13px; }
+    .avatar { display: grid; width: 42px; height: 42px; flex: 0 0 auto; place-items: center; border-radius: 13px; background: var(--brand-soft); color: var(--brand); font-size: 18px; font-weight: 800; }
+    .account h3 { margin: 0 0 3px; font-size: 16px; }
+    .meta { display: flex; flex-wrap: wrap; gap: 5px 11px; color: var(--muted); font-size: 11px; }
+    .actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .badge { display: inline-flex; align-items: center; border-radius: 999px; padding: 5px 9px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+    .badge.ok { background: #e9f8f1; color: #08724f; }
+    .badge.off { background: #eff2f1; color: #667973; }
+    .badge.warn { background: var(--warn-bg); color: var(--warn); }
+    .account-facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; padding: 18px 20px; }
+    .account-fact { min-width: 0; }
+    .account-fact + .account-fact { padding-left: 24px; border-left: 1px solid var(--line-soft); }
+    .account-fact span { display: block; margin-bottom: 4px; color: var(--subtle); font-size: 11px; }
+    .account-fact strong { display: block; overflow-wrap: anywhere; font-size: 13px; font-variant-numeric: tabular-nums; }
+    .account-footer { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 13px 20px; border-top: 1px solid var(--line-soft); background: #fbfdfc; }
+    .connection-state { display: flex; min-width: 0; align-items: center; gap: 8px; color: #396057; font-size: 12px; }
+    .connection-state.bad { color: var(--danger); }
+    .connection-state-dot { width: 7px; height: 7px; flex: 0 0 auto; border-radius: 50%; background: #19a56f; }
+    .connection-state.bad .connection-state-dot { background: #d3483e; }
+    .account-actions { display: flex; flex: 0 0 auto; align-items: center; gap: 8px; }
+    .account-actions form { display: inline-flex; margin: 0; }
+    .detail-back { display: inline-flex; min-height: 36px; align-items: center; gap: 7px; margin-bottom: 14px; color: #47665d; font-size: 12px; font-weight: 700; text-decoration: none; }
+    .detail-back:hover { color: var(--brand); }
+    .detail-back svg { width: 16px; height: 16px; }
+    .detail-hero { display: flex; align-items: center; justify-content: space-between; gap: 22px; margin-bottom: 18px; padding: 20px; border: 1px solid var(--line); border-radius: 16px; background: var(--paper); }
+    .detail-identity { display: flex; min-width: 0; align-items: center; gap: 14px; }
+    .detail-identity .avatar { width: 48px; height: 48px; }
+    .detail-identity h2 { margin: 0 0 4px; font-size: 20px; letter-spacing: -.02em; }
+    .detail-identity .actions { margin-top: 9px; }
+    .endpoint-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-bottom: 18px; }
+    .key-page { padding: 20px; border: 1px solid var(--line); border-radius: 16px; background: var(--paper); }
+    .key-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 12px; }
+    .subsection-title { margin: 0 0 3px; font-size: 14px; }
+    .key-list { border: 1px solid var(--line); border-radius: 12px; background: var(--paper); overflow: hidden; }
+    .key-item { display: grid; grid-template-columns: minmax(160px, .75fr) minmax(220px, 1.25fr) auto; align-items: center; gap: 12px; padding: 12px 13px; }
+    .key-item + .key-item { border-top: 1px solid var(--line-soft); }
+    .key-name { min-width: 0; }
+    .key-name strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .key-name small { color: var(--muted); font-variant-numeric: tabular-nums; }
+    .scope-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+    .scope-tag { padding: 3px 7px; border-radius: 999px; background: #eef6f2; color: #315f51; font-size: 10px; }
+    .key-actions { display: flex; align-items: center; justify-content: flex-end; gap: 7px; }
+    .key-actions form { display: inline-flex; margin: 0; }
+    .copy-error { background: var(--danger-bg); color: var(--danger); }
+    .secret { margin-bottom: 18px; padding: 19px 20px; border-radius: 16px; background: #092e26; color: #fff; }
+    .secret h3 { margin: 0 0 5px; font-size: 16px; }
+    .secret > p { margin: 0 0 15px; color: #a9d3c5; font-size: 12px; }
+    .credential-stack { display: grid; gap: 11px; }
+    .credential-label { display: block; margin-bottom: 5px; color: #a9d3c5; font-size: 11px; font-weight: 700; }
+    .credential-row { display: flex; align-items: stretch; gap: 9px; }
+    .secret code { display: block; min-width: 0; flex: 1; padding: 11px 12px; border: 1px solid rgba(255, 255, 255, .14); border-radius: 10px; background: rgba(0, 0, 0, .2); color: #d0fae9; overflow-wrap: anywhere; }
+    .secret-actions { display: flex; justify-content: flex-end; margin-top: 13px; }
+    .api-endpoint { display: flex; min-width: 0; align-items: center; justify-content: space-between; gap: 14px; padding: 14px; border: 1px solid var(--line); border-radius: 13px; background: var(--paper); }
+    .api-endpoint > div { min-width: 0; }
+    .api-endpoint span { display: block; margin-bottom: 3px; color: var(--muted); font-size: 11px; font-weight: 700; }
+    .api-endpoint code { display: block; overflow: hidden; color: #17483a; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+    .locked-account { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 9px 11px; border: 1px solid var(--line); border-radius: 10px; background: #f7faf8; }
+    .locked-account .avatar { width: 28px; height: 28px; border-radius: 8px; font-size: 12px; }
+    .locked-account strong { display: block; font-size: 12px; }
+    .locked-account span { color: var(--muted); font-size: 10px; }
+
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .field { min-width: 0; }
+    .field.full { grid-column: 1 / -1; }
+    .field label, .field-label, .scope-field legend { display: block; margin-bottom: 6px; color: #324a43; font-size: 12px; font-weight: 700; }
+    .field input, .field select { width: 100%; min-height: 42px; padding: 9px 11px; border: 1px solid var(--line); border-radius: 10px; outline: none; background: #fff; color: var(--ink); font: inherit; }
+    .field input::placeholder { color: #82958e; }
+    .field input:focus, .field select:focus { border-color: #19a574; box-shadow: 0 0 0 3px rgba(25, 165, 116, .11); }
+    .help { margin-top: 5px; color: var(--subtle); font-size: 11px; }
+    .scope-field { min-width: 0; margin: 13px 0 15px; padding: 0; border: 0; }
+    .scope-list { display: flex; flex-wrap: wrap; gap: 7px; }
+    .check { display: flex; align-items: center; gap: 7px; min-height: 35px; padding: 6px 9px; border-radius: 8px; background: #edf4f1; color: #35534a; font-size: 11px; }
+    .check input { accent-color: var(--brand); }
+    .form-actions { display: flex; grid-column: 1 / -1; justify-content: flex-end; gap: 9px; margin-top: 3px; }
+    .button, .button-danger, .button-ghost { display: inline-flex; min-height: 42px; align-items: center; justify-content: center; padding: 9px 14px; border: 0; border-radius: 10px; cursor: pointer; font: inherit; font-weight: 750; text-decoration: none; white-space: nowrap; transition: background-color .16s ease, color .16s ease; }
+    .button { background: var(--brand); color: #fff; }
+    .button:hover { background: var(--brand-dark); }
+    .button-ghost { background: #edf3f0; color: #315249; }
+    .button-ghost:hover { background: #e2ece7; }
+    .button-danger { background: #fff0ef; color: var(--danger); }
+    .button-danger:hover { background: #ffe4e1; }
+    .button.small, .button-ghost.small, .button-danger.small { min-height: 36px; padding: 7px 10px; font-size: 12px; }
+    button:disabled { cursor: not-allowed; opacity: .55; }
+
+    .table-wrap { overflow: auto; border: 1px solid var(--line); border-radius: 16px; background: var(--paper); }
+    .table { width: 100%; min-width: 760px; border-collapse: collapse; }
+    .table th, .table td { padding: 13px 15px; border-bottom: 1px solid var(--line-soft); text-align: left; font-size: 12px; }
+    .table th { background: #fafcfb; color: #6b8078; font-size: 11px; font-weight: 700; letter-spacing: .03em; }
+    .table tr:last-child td { border-bottom: 0; }
+    .prefix { padding: 3px 6px; border-radius: 6px; background: #edf3f0; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .muted { color: var(--muted); }
+    .audit-result { font-weight: 700; }
+    .audit-result.success { color: #08724f; }
+    .audit-result.failed, .audit-result.denied { color: var(--danger); }
+    .password-panel { max-width: 720px; }
+    .password-surface { padding: 21px; border: 1px solid var(--line); border-radius: 16px; background: var(--paper); }
+    .warning { margin-bottom: 16px; padding: 11px 13px; border: 1px solid #f0d696; border-radius: 10px; background: var(--warn-bg); color: #75490b; }
+    .copy-ok { background: #bee9d7; color: #075f44; }
+
+    dialog { width: min(620px, calc(100vw - 28px)); max-height: min(820px, calc(100vh - 32px)); padding: 0; border: 0; border-radius: 16px; background: var(--paper); color: var(--ink); box-shadow: 0 24px 70px rgba(0, 0, 0, .26); overflow: auto; }
+    dialog::backdrop { background: rgba(5, 27, 21, .58); backdrop-filter: blur(2px); }
+    .dialog-head { position: sticky; z-index: 2; top: 0; display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; padding: 19px 21px 16px; border-bottom: 1px solid var(--line-soft); background: var(--paper); }
+    .dialog-head h2 { margin: 0 0 3px; font-size: 19px; }
+    .dialog-head p { margin: 0; color: var(--muted); font-size: 12px; }
+    .dialog-close { display: grid; width: 36px; height: 36px; flex: 0 0 auto; place-items: center; padding: 0; border: 0; border-radius: 9px; background: #edf3f0; color: #315249; cursor: pointer; }
+    .dialog-close:hover { background: #e2ece7; }
+    .dialog-close svg { width: 18px; height: 18px; }
+    .dialog-body { padding: 20px 21px 22px; }
+
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 220px minmax(0, 1fr); }
+      .main { padding-right: 26px; padding-left: 26px; }
+      .metric-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    @media (max-width: 720px) {
+      .layout { display: block; }
+      .sidebar { position: sticky; z-index: 20; height: auto; padding: 13px 14px 11px; overflow: visible; }
+      .brand { margin-bottom: 10px; }
+      .brand-icon { width: 34px; height: 34px; }
+      .brand small { display: none; }
+      .nav { display: flex; gap: 5px; margin: 0 -4px; padding: 0 4px 3px; overflow-x: auto; }
+      .nav a { min-width: max-content; min-height: 40px; padding: 8px 10px; }
+      .nav svg { width: 16px; height: 16px; }
+      .side-foot { position: absolute; top: 12px; right: 14px; margin: 0; padding: 0; border: 0; }
+      .side-foot strong, .side-foot > span { display: none; }
+      .logout { min-height: 34px; margin: 0; padding: 5px 8px; }
+      .main { padding: 24px 15px 58px; }
+      .top { margin-bottom: 13px; }
+      .metric { padding: 15px; }
+      .metric strong { font-size: 24px; }
+      .metric-strip { grid-template-columns: 1fr; }
+      .metric + .metric { border-top: 1px solid var(--line-soft); border-left: 0; }
+      .section-head, .key-head { align-items: flex-start; }
+      .section-head { flex-direction: column; }
+      .account-top { align-items: flex-start; flex-wrap: wrap; }
+      .account-top > .actions { width: 100%; }
+      .account-facts { gap: 12px; }
+      .account-fact + .account-fact { padding-left: 12px; }
+      .account-footer { align-items: stretch; flex-direction: column; }
+      .account-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .account-actions > a, .account-actions > button, .account-actions form, .account-actions form button { width: 100%; }
+      .detail-hero { align-items: flex-start; flex-direction: column; }
+      .detail-hero > .button { width: 100%; }
+      .endpoint-grid { grid-template-columns: 1fr; }
+      .key-item { grid-template-columns: minmax(0, 1fr) auto; }
+      .key-item .scope-tags { grid-column: 1 / -1; grid-row: 2; }
+      .key-item .key-actions { grid-column: 1 / -1; grid-row: 3; }
+      .grid { grid-template-columns: 1fr; }
+      .field.full, .form-actions { grid-column: 1; }
+      .credential-row { display: block; }
+      .credential-row .button { width: 100%; margin-top: 8px; }
+      .secret-actions .button-ghost { width: 100%; }
+      .api-endpoint { align-items: stretch; flex-direction: column; }
+      .api-endpoint .button-ghost { width: 100%; }
+    }
+    @media (max-width: 430px) {
+      .account-title { align-items: flex-start; }
+      .account-facts { grid-template-columns: 1fr; gap: 12px; }
+      .account-fact + .account-fact { padding-top: 12px; padding-left: 0; border-top: 1px solid var(--line-soft); border-left: 0; }
+      .key-head { display: block; }
+      .key-head .button { width: 100%; margin-top: 12px; }
+      dialog { width: calc(100vw - 20px); max-height: calc(100vh - 20px); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+      dialog::backdrop { backdrop-filter: none; }
+    }
+  </style>
+</head>
+<body data-view="{{ initial_view }}" data-open-modal="{{ open_modal or '' }}">
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h11l-3-3m3 3-3 3M17 17H6l3 3m-3-3 3-3"/></svg></span>
+      <span>Bridge 管理中心<small>WECHAT OPS</small></span>
+    </div>
+    <nav class="nav" aria-label="管理中心导航">
+      <a href="{{ base_path }}/admin?view=accounts" {% if initial_view == 'accounts' %}aria-current="page"{% endif %}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8.5h12M6 15.5h8"/><rect x="3.5" y="4" width="17" height="16" rx="3"/><circle cx="17" cy="15.5" r="1.5"/></svg>公众号管理</a>
+      <a href="{{ base_path }}/admin?view=audit" {% if initial_view == 'audit' %}aria-current="page"{% endif %}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h10M8 12h10M8 18h7"/><circle cx="4.5" cy="6" r=".75" fill="currentColor" stroke="none"/><circle cx="4.5" cy="12" r=".75" fill="currentColor" stroke="none"/><circle cx="4.5" cy="18" r=".75" fill="currentColor" stroke="none"/></svg>操作审计</a>
+      <a href="{{ base_path }}/admin?view=security" {% if initial_view == 'security' %}aria-current="page"{% endif %}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8.5 10V7.5a3.5 3.5 0 0 1 7 0V10M12 14v2"/></svg>账号安全</a>
+    </nav>
+    <div class="side-foot">
+      <strong>{{ admin.username }}</strong><span>系统管理员</span>
+      <form method="post" action="{{ base_path }}/admin/logout"><input type="hidden" name="_csrf" value="{{ session.csrf_token }}"><button class="logout" type="submit">退出登录</button></form>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="top"><div class="service-status"><span class="status-dot"></span>服务运行正常</div></header>
+    {% if notice %}<div class="flash notice" role="status">{{ notice }}</div>{% endif %}
+    {% if error %}<div class="flash error" role="alert">{{ error }}</div>{% endif %}
+
+    {% if initial_view == 'accounts' %}
+      {% if account_keys_account %}
+        <a class="detail-back" href="{{ base_path }}/admin?view=accounts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5m6-6-6 6 6 6"/></svg>返回公众号管理</a>
+        {% if new_key %}
+          <section class="secret" aria-labelledby="new-key-title">
+            <h3 id="new-key-title">{{ new_key_name }} 的智能体接入配置</h3>
+            <p>API Key 已加密保存；请立即复制，后续也可在此页面再次复制。</p>
+            <div class="credential-stack">
+              <div><span class="credential-label">API 基础地址</span><div class="credential-row"><code id="new-api-base">{{ agent_api_base_url }}</code><button class="button" type="button" onclick="copyValue(this, 'new-api-base', '复制 API 地址')">复制 API 地址</button></div></div>
+              <div><span class="credential-label">API Key</span><div class="credential-row"><code id="new-key">{{ new_key }}</code><button class="button" type="button" onclick="copyValue(this, 'new-key', '复制 Key')">复制 Key</button></div></div>
+              <div><span class="credential-label">接口文档地址</span><div class="credential-row"><code id="new-api-doc">{{ agent_api_doc_url }}</code><button class="button" type="button" onclick="copyValue(this, 'new-api-doc', '复制文档地址')">复制文档地址</button></div></div>
+            </div>
+            <div class="secret-actions"><button class="button-ghost" type="button" onclick="copyAgentConfig(this, 'new-api-base', 'new-key', 'new-api-doc')">复制全部配置</button></div>
+          </section>
+        {% endif %}
+        <section class="detail-hero" aria-labelledby="account-key-title">
+          <div class="detail-identity">
+            <div class="avatar" aria-hidden="true">{{ account_keys_account.display_name[:1] }}</div>
+            <div>
+              <h2 id="account-key-title">{{ account_keys_account.display_name }}</h2>
+              <div class="meta"><span>{{ account_keys_account.slug }}</span><span>{{ account_keys_account.masked_app_id }}</span></div>
+              <div class="actions"><span class="badge {{ 'ok' if account_keys_account.enabled else 'off' }}">{{ '已启用' if account_keys_account.enabled else '已停用' }}</span><span class="badge {{ 'warn' if account_keys_account.last_error else 'ok' }}">{{ '连接异常' if account_keys_account.last_error else '凭证可用' }}</span></div>
+            </div>
+          </div>
+          <button class="button" type="button" data-open-dialog="key-dialog">生成 API Key</button>
+        </section>
+        <div class="endpoint-grid" aria-label="智能体接入地址">
+          <div class="api-endpoint"><div><span>统一 API 基础地址</span><code id="api-base-{{ account_keys_account.id }}">{{ agent_api_base_url }}</code></div><button class="button-ghost small" type="button" onclick="copyValue(this, 'api-base-{{ account_keys_account.id }}', '复制 API 地址')">复制 API 地址</button></div>
+          <div class="api-endpoint"><div><span>接口文档地址</span><code id="api-doc-{{ account_keys_account.id }}">{{ agent_api_doc_url }}</code></div><button class="button-ghost small" type="button" onclick="copyValue(this, 'api-doc-{{ account_keys_account.id }}', '复制文档地址')">复制文档地址</button></div>
+        </div>
+        <section class="key-page" aria-labelledby="key-list-title">
+          <div class="key-head">
+            <div><h3 class="subsection-title" id="key-list-title">智能体 API Key</h3><p class="section-desc">每个 Key 只允许访问“{{ account_keys_account.display_name }}”，可以独立设置权限和撤销。</p></div>
+            <span class="badge ok">{{ account_keys_account.active_key_count }} 个有效</span>
+          </div>
+          <div class="key-list">
+            {% for key in keys_by_account.get(account_keys_account.id, []) %}
+              <div class="key-item">
+                <div class="key-name"><strong>{{ key.name }}</strong><small>{{ key.key_prefix }}… · {{ key.last_used_at[:16].replace('T',' ') if key.last_used_at else '从未使用' }}</small></div>
+                <div class="scope-tags">{% for scope in key.scopes %}<span class="scope-tag">{{ scope_labels.get(scope, scope) }}</span>{% endfor %}</div>
+                <div class="key-actions">
+                  {% if key.enabled and not key.revoked_at %}
+                    {% if key.can_copy %}
+                      <button class="button-ghost small" type="button" data-copy-key data-key-id="{{ key.id }}" data-csrf="{{ session.csrf_token }}" data-base-path="{{ base_path }}">复制 Key</button>
+                    {% else %}
+                      <form method="post" action="{{ base_path }}/admin/keys/{{ key.id }}/rotate" onsubmit="return confirm('重新生成后，旧 Key 将立即失效。确定继续？')"><input type="hidden" name="_csrf" value="{{ session.csrf_token }}"><input type="hidden" name="account_id" value="{{ account_keys_account.id }}"><button class="button-ghost small" type="submit" title="此历史 Key 没有可恢复的加密副本">重新生成</button></form>
+                    {% endif %}
+                    <form method="post" action="{{ base_path }}/admin/keys/{{ key.id }}/revoke" onsubmit="return confirm('确定撤销这个 Key？对应智能体将立即无法调用 API。')"><input type="hidden" name="_csrf" value="{{ session.csrf_token }}"><input type="hidden" name="account_id" value="{{ account_keys_account.id }}"><button class="button-danger small" type="submit">撤销</button></form>
+                  {% else %}<span class="badge off">已撤销</span>{% endif %}
+                </div>
+              </div>
+            {% else %}<div class="empty">尚未生成智能体 API Key。</div>{% endfor %}
+          </div>
+        </section>
+      {% else %}
+        <section class="metric-strip" aria-label="运营指标">
+          <div class="metric"><span>公众号</span><strong>{{ stats.accounts }}</strong><small>{{ stats.active_accounts }} 个已启用</small></div>
+          <div class="metric"><span>有效智能体 Key</span><strong>{{ stats.active_keys }}</strong><small>均绑定到指定公众号</small></div>
+          <div class="metric"><span>今日 API 调用</span><strong>{{ stats.calls_today }}</strong><small>不记录请求正文</small></div>
+        </section>
+        <div class="section-head">
+          <div><h2>已接入的公众号</h2><p class="section-desc">查看连接状态，或进入公众号管理智能体访问权限。</p></div>
+          <button class="button" type="button" data-open-dialog="account-dialog">添加公众号</button>
+        </div>
+        <div class="accounts">
+          {% for account in accounts %}
+            <article class="account" id="account-{{ account.id }}">
+              <div class="account-top">
+                <div class="account-title"><div class="avatar" aria-hidden="true">{{ account.display_name[:1] }}</div><div><h3>{{ account.display_name }}</h3><div class="meta"><span>{{ account.slug }}</span></div></div></div>
+                <div class="actions"><span class="badge {{ 'ok' if account.enabled else 'off' }}">{{ '已启用' if account.enabled else '已停用' }}</span><span class="badge {{ 'warn' if account.last_error else 'ok' }}">{{ '连接异常' if account.last_error else '凭证可用' }}</span></div>
+              </div>
+              <div class="account-facts">
+                <div class="account-fact"><span>AppID</span><strong>{{ account.masked_app_id }}</strong></div>
+                <div class="account-fact"><span>最近验证</span><strong>{{ account.last_verified_at[:16].replace('T',' ') if account.last_verified_at else '待验证' }}</strong></div>
+                <div class="account-fact"><span>智能体 API Key</span><strong>{{ account.active_key_count }} 个有效</strong></div>
+              </div>
+              <div class="account-footer">
+                <div class="connection-state {{ 'bad' if account.last_error else '' }}"><span class="connection-state-dot" aria-hidden="true"></span><span>{{ account.last_error or '微信凭证已加密保存，连接状态正常。' }}</span></div>
+                <div class="account-actions">
+                  <a class="button small" href="{{ base_path }}/admin/accounts/{{ account.id }}/keys">管理 API Key</a>
+                  <button class="button-ghost small" type="button" data-open-dialog="edit-account-{{ account.id }}">编辑</button>
+                  <form method="post" action="{{ base_path }}/admin/accounts/{{ account.id }}/test"><input type="hidden" name="_csrf" value="{{ session.csrf_token }}"><button class="button-ghost small" type="submit">测试连接</button></form>
+                  <form method="post" action="{{ base_path }}/admin/accounts/{{ account.id }}/toggle" {% if account.enabled %}onsubmit="return confirm('停用后，该公众号的所有智能体 Key 将无法调用接口。确定继续？')"{% endif %}><input type="hidden" name="_csrf" value="{{ session.csrf_token }}"><input type="hidden" name="enabled" value="{{ 0 if account.enabled else 1 }}"><button class="{{ 'button-danger' if account.enabled else 'button' }} small" type="submit">{{ '停用' if account.enabled else '启用' }}</button></form>
+                </div>
+              </div>
+            </article>
+          {% else %}<div class="surface empty">还没有公众号，点击“添加公众号”完成首次接入。</div>{% endfor %}
+        </div>
+      {% endif %}
+
+    {% elif initial_view == 'audit' %}
+      <div class="section-head"><div><h2>审计记录</h2><p class="section-desc">记录操作类型、公众号和执行结果，不保存文章内容或密钥。</p></div></div>
+      <div class="table-wrap"><table class="table"><thead><tr><th>时间</th><th>操作者</th><th>公众号</th><th>操作</th><th>目标</th><th>结果</th></tr></thead><tbody>{% for log in audit_logs %}<tr><td class="muted">{{ log.created_at[:19].replace('T',' ') }}</td><td>{{ '管理员' if log.actor_type == 'admin' else '智能体' }} {{ log.actor_id or '' }}</td><td>{{ log.account_name or '—' }}</td><td><span class="prefix">{{ log.action }}</span></td><td class="muted">{{ log.target or '—' }}</td><td><span class="audit-result {{ log.result }}">{{ log.result }}</span></td></tr>{% else %}<tr><td colspan="6" class="empty">暂无审计记录。</td></tr>{% endfor %}</tbody></table></div>
+
+    {% elif initial_view == 'security' %}
+      <section class="password-panel">
+        <div class="section-head"><div><h2>管理员密码</h2><p class="section-desc">更新后，旧登录会话会立即失效。</p></div></div>
+        <div class="password-surface">
+          {% if admin.must_change_password %}<div class="warning">你正在使用初始管理员密码，请尽快更换。</div>{% endif %}
+          <form class="grid" method="post" action="{{ base_path }}/admin/password">
+            <input type="hidden" name="_csrf" value="{{ session.csrf_token }}"><input type="hidden" name="username" value="{{ admin.username }}" autocomplete="username">
+            <div class="field full"><label for="current-password">当前密码</label><input id="current-password" type="password" name="current_password" autocomplete="current-password" required></div>
+            <div class="field"><label for="new-password">新密码</label><input id="new-password" type="password" name="new_password" autocomplete="new-password" minlength="12" required></div>
+            <div class="field"><label for="confirm-password">确认新密码</label><input id="confirm-password" type="password" name="confirm_password" autocomplete="new-password" minlength="12" required></div>
+            <div class="form-actions"><button class="button" type="submit">更新密码</button></div>
+          </form>
+        </div>
+      </section>
+    {% endif %}
+  </main>
+</div>
+
+{% if initial_view == 'accounts' %}
+  {% if account_keys_account %}
+    <dialog id="key-dialog" aria-labelledby="key-dialog-title">
+      <div class="dialog-head"><div><h2 id="key-dialog-title">生成智能体 API Key</h2><p>设置此 Key 允许执行的公众号操作。</p></div><button class="dialog-close" type="button" data-close-dialog aria-label="关闭"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+      <div class="dialog-body">
+        <form method="post" action="{{ base_path }}/admin/accounts/{{ account_keys_account.id }}/keys">
+          <input type="hidden" name="_csrf" value="{{ session.csrf_token }}">
+          <div class="field"><div class="field-label">所属公众号</div><div class="locked-account"><div class="avatar" aria-hidden="true">{{ account_keys_account.display_name[:1] }}</div><div><strong>{{ account_keys_account.display_name }}</strong><span>{{ account_keys_account.slug }}</span></div></div></div>
+          <div class="field" style="margin-top: 13px"><label for="key-name">Key 名称</label><input id="key-name" name="name" placeholder="例：内容运营智能体" autocomplete="off" required></div>
+          <fieldset class="scope-field"><legend>允许的操作</legend><div class="scope-list">{% for scope in all_scopes %}<label class="check"><input type="checkbox" name="scopes" value="{{ scope }}" checked>{{ scope_labels[scope] }}</label>{% endfor %}</div></fieldset>
+          <div class="form-actions"><button class="button-ghost" type="button" data-close-dialog>取消</button><button class="button" type="submit">生成 API Key</button></div>
+        </form>
+      </div>
+    </dialog>
+  {% else %}
+    <dialog id="account-dialog" aria-labelledby="account-dialog-title">
+      <div class="dialog-head"><div><h2 id="account-dialog-title">添加公众号</h2><p>验证微信凭证成功后才会保存。</p></div><button class="dialog-close" type="button" data-close-dialog aria-label="关闭"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+      <div class="dialog-body">
+        <form class="grid" method="post" action="{{ base_path }}/admin/accounts">
+          <input type="hidden" name="_csrf" value="{{ session.csrf_token }}">
+          <div class="field"><label for="new-display-name">公众号名称</label><input id="new-display-name" name="display_name" placeholder="例：品牌号" autocomplete="organization" required></div>
+          <div class="field"><label for="new-slug">账号标识</label><input id="new-slug" name="slug" pattern="[a-z0-9][a-z0-9-]{1,31}" placeholder="brand-account" autocomplete="off" required><div class="help">2–32 位小写字母、数字或连字符</div></div>
+          <div class="field"><label for="new-app-id">AppID</label><input id="new-app-id" name="app_id" placeholder="wx..." autocomplete="off" required></div>
+          <div class="field"><label for="new-app-secret">AppSecret</label><input id="new-app-secret" name="app_secret" type="password" autocomplete="new-password" required></div>
+          <div class="field full"><label for="new-callback-token">回调 Token（可选）</label><input id="new-callback-token" name="callback_token" type="password" autocomplete="new-password" placeholder="仅在需要微信消息回调时填写"></div>
+          <div class="form-actions"><button class="button-ghost" type="button" data-close-dialog>取消</button><button class="button" type="submit">验证连接并添加</button></div>
+        </form>
+      </div>
+    </dialog>
+    {% for account in accounts %}
+      <dialog id="edit-account-{{ account.id }}" aria-labelledby="edit-account-title-{{ account.id }}">
+        <div class="dialog-head"><div><h2 id="edit-account-title-{{ account.id }}">编辑 {{ account.display_name }}</h2><p>保存前会重新验证微信凭证。</p></div><button class="dialog-close" type="button" data-close-dialog aria-label="关闭"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+        <div class="dialog-body">
+          <form class="grid" method="post" action="{{ base_path }}/admin/accounts/{{ account.id }}/update">
+            <input type="hidden" name="_csrf" value="{{ session.csrf_token }}">
+            <div class="field"><label for="display-name-{{ account.id }}">公众号名称</label><input id="display-name-{{ account.id }}" name="display_name" value="{{ account.display_name }}" autocomplete="organization" required></div>
+            <div class="field"><label for="app-id-{{ account.id }}">AppID</label><input id="app-id-{{ account.id }}" name="app_id" value="{{ account.app_id }}" autocomplete="off" required></div>
+            <div class="field"><label for="app-secret-{{ account.id }}">新 AppSecret</label><input id="app-secret-{{ account.id }}" name="app_secret" type="password" autocomplete="new-password" placeholder="留空保持不变"><div class="help">密钥永不回显</div></div>
+            <div class="field"><label for="callback-token-{{ account.id }}">新回调 Token</label><input id="callback-token-{{ account.id }}" name="callback_token" type="password" autocomplete="new-password" placeholder="仅在需要更换时填写"><label class="check" style="margin-top: 7px"><input type="checkbox" name="replace_callback" value="1">用此值替换现有回调 Token</label></div>
+            <div class="form-actions"><button class="button-ghost" type="button" data-close-dialog>取消</button><button class="button" type="submit">验证并保存</button></div>
+          </form>
+        </div>
+      </dialog>
+    {% endfor %}
+  {% endif %}
+{% endif %}
+
+<script>
+  function openDialog(id) {
+    const dialog = document.getElementById(id);
+    if (!dialog) return;
+    dialog.showModal();
+  }
+
+  document.querySelectorAll('[data-open-dialog]').forEach((button) => {
+    button.addEventListener('click', () => openDialog(button.dataset.openDialog));
+  });
+  document.querySelectorAll('[data-close-dialog]').forEach((button) => {
+    button.addEventListener('click', () => button.closest('dialog').close());
+  });
+  document.querySelectorAll('dialog').forEach((dialog) => {
+    dialog.addEventListener('click', (event) => { if (event.target === dialog) dialog.close(); });
+  });
+
+  const requestedModal = document.body.dataset.openModal;
+  if (requestedModal) openDialog(requestedModal);
+
+  async function writeClipboard(button, text, originalLabel) {
+    try {
+      await navigator.clipboard.writeText(text);
+      button.textContent = '已复制';
+      button.classList.add('copy-ok');
+      window.setTimeout(() => { button.textContent = originalLabel; button.classList.remove('copy-ok'); }, 1800);
+    } catch (error) {
+      const temporary = document.createElement('textarea');
+      temporary.value = text;
+      temporary.setAttribute('readonly', '');
+      temporary.style.position = 'fixed';
+      temporary.style.opacity = '0';
+      document.body.appendChild(temporary);
+      temporary.select();
+      document.execCommand('copy');
+      temporary.remove();
+      button.textContent = '已复制';
+      window.setTimeout(() => { button.textContent = originalLabel; }, 1800);
+    }
+  }
+
+  function copyValue(button, elementId, originalLabel) {
+    const value = document.getElementById(elementId).textContent.trim();
+    return writeClipboard(button, value, originalLabel);
+  }
+
+  function copyAgentConfig(button, apiElementId, keyElementId, docElementId) {
+    const apiBase = document.getElementById(apiElementId).textContent.trim();
+    const apiKey = document.getElementById(keyElementId).textContent.trim();
+    const apiDoc = document.getElementById(docElementId).textContent.trim();
+    const config = `WECHAT_BRIDGE_BASE_URL=${apiBase}\nWECHAT_BRIDGE_API_TOKEN=${apiKey}\nWECHAT_BRIDGE_API_DOC_URL=${apiDoc}`;
+    return writeClipboard(button, config, '复制全部配置');
+  }
+
+  async function copyStoredKey(button) {
+    const originalLabel = '复制 Key';
+    button.disabled = true;
+    button.setAttribute('aria-busy', 'true');
+    button.textContent = '正在读取…';
+    try {
+      const response = await fetch(`${button.dataset.basePath}/admin/keys/${button.dataset.keyId}/reveal`, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+        body: new URLSearchParams({ _csrf: button.dataset.csrf }),
+      });
+      const payload = await response.json();
+      if (!response.ok || !payload.key) throw new Error(payload.detail || '读取失败');
+      await writeClipboard(button, payload.key, originalLabel);
+    } catch (error) {
+      button.textContent = error.message || '复制失败，请重试';
+      button.classList.add('copy-error');
+      window.setTimeout(() => { button.textContent = originalLabel; button.classList.remove('copy-error'); }, 2200);
+    } finally {
+      button.disabled = false;
+      button.removeAttribute('aria-busy');
+    }
+  }
+
+  document.querySelectorAll('[data-copy-key]').forEach((button) => {
+    button.addEventListener('click', () => copyStoredKey(button));
+  });
+</script>
+</body>
+</html>

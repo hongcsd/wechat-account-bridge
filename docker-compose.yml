@@ -1,0 +1,25 @@
+services:
+  wechat-account-bridge:
+    build: .
+    image: wechat-account-bridge:1.1.5
+    container_name: wechat-account-bridge
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    env_file:
+      - .env
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - wechat_account_bridge_tmp:/tmp/wechat-account-bridge
+      - wechat_account_bridge_data:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/readyz', timeout=3)"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  wechat_account_bridge_tmp:
+  wechat_account_bridge_data:
